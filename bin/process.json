@@ -2,13 +2,13 @@
   "apps": [
     {
       "name": "mutator",
-      "script": "/var/www/mutator/app",
+      "script": "/var/www/mutator/app.js",
       "env": {
-        "ENV": "development",
+        "ENV": "development"
       },
       "env_production": {
         "NODE": "production",
-	"PORT": "8008"
+        "PORT": "9008"
       }
     }
   ]
