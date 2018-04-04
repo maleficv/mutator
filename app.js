@@ -13,7 +13,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/resize', function (httpRequest, httpResponse) {
-    const {url, width = 1920, height = 1080, format} = httpRequest.query;
+    const {url, width = 1920, height = null, format} = httpRequest.query;
     const resizedImage = resizeStream(width, height, format);
 
     const inputType = url.match('.png|.jpg|.jpeg')[0];
@@ -34,7 +34,7 @@ app.get('/resize', function (httpRequest, httpResponse) {
 app.post('/resize', upload.single('url'), function (httpRequest, httpResponse) {
     const {file} = httpRequest;
     const {buffer} = file;
-    const {width = 1920, height = 1080, format} = httpRequest.body;
+    const {width = 1920, height = null, format} = httpRequest.body;
 
     const inputType = file.originalname.match('.png|.jpg|.jpeg')[0];
     const outputType = inputType.split('.')[1];
@@ -50,8 +50,10 @@ app.post('/resize', upload.single('url'), function (httpRequest, httpResponse) {
 });
 
 function resizeStream(width, height, format) {
-    let output = sharp()
-        .resize(parseInt(width), parseInt(height));
+    let output = sharp();
+
+    if (width && !height) { output.resize(parseInt(width)) }
+    if (height && height) { output.resize(parseInt(width), parseInt(height))}
 
     if (format === 'jpeg') output.jpeg();
     if (format === 'png') output.png();
@@ -60,12 +62,15 @@ function resizeStream(width, height, format) {
 }
 
 function resizeBufferPromise(buffer, width, height, format) {
-    let output = sharp(buffer)
-        .resize(parseInt(width), parseInt(height))
-        .toBuffer();
+    let output = sharp(buffer);
+
+    if (width && !height) { output.resize(parseInt(width)) }
+    if (height && height) { output.resize(parseInt(width), parseInt(height))}
 
     if (format === 'jpeg') output.jpeg();
     if (format === 'png') output.png();
+
+    output.toBuffer();
 
     return output;
 }
